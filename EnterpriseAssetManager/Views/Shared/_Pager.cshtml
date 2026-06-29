@@ -1,0 +1,53 @@
+@model PagerContext
+@{
+    var request = ViewContext.HttpContext.Request;
+
+    string PageUrl(int targetPage)
+    {
+        var items = new List<KeyValuePair<string, string>>();
+        foreach (var kv in request.Query)
+        {
+            if (kv.Key == "page") continue;
+            foreach (var value in kv.Value)
+            {
+                items.Add(new KeyValuePair<string, string>(kv.Key, value));
+            }
+        }
+        items.Add(new KeyValuePair<string, string>("page", targetPage.ToString()));
+        return $"{request.Path}{QueryString.Create(items)}";
+    }
+}
+
+<div class="pager">
+    <div class="summary">
+        @if (Model.TotalCount == 0)
+        {
+            <span>No results.</span>
+        }
+        else
+        {
+            <span>Showing @Model.FirstItem to @Model.LastItem of @Model.TotalCount</span>
+        }
+    </div>
+    <div class="pages">
+        @if (Model.HasPrevious)
+        {
+            <a href="@PageUrl(Model.Page - 1)">‹ Prev</a>
+        }
+        else
+        {
+            <span class="disabled">‹ Prev</span>
+        }
+
+        <span>Page @Model.Page of @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
+
+        @if (Model.HasNext)
+        {
+            <a href="@PageUrl(Model.Page + 1)">Next ›</a>
+        }
+        else
+        {
+            <span class="disabled">Next ›</span>
+        }
+    </div>
+</div>

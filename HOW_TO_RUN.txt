@@ -1,0 +1,208 @@
+================================================================
+ ENTERPRISE ASSET MANAGER (AssetOps) - HOW TO RUN
+  Database: SQL Server Express (.\SQLEXPRESS)
+================================================================
+
+PROJECT LOCATION
+----------------
+C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager
+
+Web project (.csproj):
+C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager\EnterpriseAssetManager\EnterpriseAssetManager.csproj
+
+Connection string (already configured in appsettings.json):
+Server=.\SQLEXPRESS;Database=EnterpriseAssetManagerDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;
+
+
+================================================================
+ 1. WHAT YOU NEED (your confirmed setup)
+================================================================
+
+(A) .NET 8 SDK
+    Verify:  dotnet --version
+    Expected: 8.0.422 (or any 8.0.x)
+
+(B) EF Core CLI
+    Verify:  dotnet ef --version
+    Expected: 8.0.28 (or any 8.0.x)
+    If missing:  dotnet tool install --global dotnet-ef
+
+(C) SQL Server Express (NOT LocalDB)
+    Service name: MSSQL$SQLEXPRESS
+    Instance:     .\SQLEXPRESS
+    Verify in Services (services.msc) that "SQL Server (SQLEXPRESS)" is Running.
+
+
+================================================================
+ 2. FIRST-TIME RUN (run from solution folder)
+================================================================
+
+Open PowerShell or CMD:
+
+    cd "C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager"
+
+    dotnet restore
+
+    dotnet build
+
+    dotnet ef migrations add InitialCreate --project EnterpriseAssetManager
+
+    dotnet ef database update --project EnterpriseAssetManager
+
+    dotnet run --project EnterpriseAssetManager
+
+Notes:
+  - Migrations folder does not exist yet on first setup, so you MUST run
+    "migrations add InitialCreate" once before database update.
+  - "database update" creates EnterpriseAssetManagerDb on .\SQLEXPRESS.
+  - "run" also calls Migrate() on startup and seeds demo data (500 users).
+  - First run may take a few extra seconds while seeding.
+
+
+================================================================
+ 3. SUBSEQUENT RUNS (after migrations already exist)
+================================================================
+
+    cd "C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager"
+    dotnet build
+    dotnet run --project EnterpriseAssetManager
+
+
+================================================================
+ 4. BROWSER URL
+================================================================
+
+After "dotnet run", open ONE of these (shown in terminal output):
+
+    https://localhost:7080
+    http://localhost:5080
+
+If HTTPS certificate warning:
+    dotnet dev-certs https --trust
+
+Or use HTTP only:
+    dotnet run --project EnterpriseAssetManager --launch-profile http
+    then open http://localhost:5080
+
+
+================================================================
+ 5. DEMO LOGIN CREDENTIALS
+================================================================
+
+  Admin     ->  admin@assetops.com     /  Admin@123
+  Manager   ->  manager@assetops.com   /  Manager@123
+  Employee  ->  employee@assetops.com  /  Employee@123
+
+After login:
+  Admin    -> Dashboard
+  Manager  -> Approvals
+  Employee -> My Requests
+
+
+================================================================
+ 6. CONFIRM DATABASE WAS CREATED
+================================================================
+
+Option A - SQL Server Management Studio (SSMS):
+  Connect to:  .\SQLEXPRESS
+  You should see database:  EnterpriseAssetManagerDb
+  Tables: Users, AssetCategories, Assets, AssetRequests, AuditLogs, __EFMigrationsHistory
+
+Option B - sqlcmd (if installed):
+    sqlcmd -S .\SQLEXPRESS -E -Q "SELECT name FROM sys.databases WHERE name = 'EnterpriseAssetManagerDb'"
+
+Option C - After app runs:
+  Log in as admin@assetops.com. If login works, the database exists and is seeded.
+
+
+================================================================
+ 7. CONFIRM SEED DATA EXISTS
+================================================================
+
+After logging in as Admin:
+  1. Dashboard shows asset/request counts (not all zeros after seed).
+  2. Users page -> search/filter -> should show many users (500 seeded).
+  3. Assets page -> should list seeded assets.
+  4. Approvals / My Requests -> should show seeded requests.
+
+Demo employee accounts (password Employee@123):
+  emp0001@assetops.com, emp0002@assetops.com, etc.
+
+
+================================================================
+ 8. SOLUTION PROJECT LAYOUT (for dotnet ef)
+================================================================
+
+  Startup project:  EnterpriseAssetManager
+  Data project:     same (DbContext is inside web project)
+  Test project:     EnterpriseAssetManager.Tests (not used for migrations)
+
+Exact ef commands (from solution root):
+    dotnet ef migrations add InitialCreate --project EnterpriseAssetManager
+    dotnet ef database update --project EnterpriseAssetManager
+
+No --startup-project flag needed when --project is the web app.
+
+
+================================================================
+ 9. RESET DATABASE
+================================================================
+
+    cd "C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager"
+    dotnet ef database drop --project EnterpriseAssetManager
+    dotnet ef database update --project EnterpriseAssetManager
+    dotnet run --project EnterpriseAssetManager
+
+
+================================================================
+ 10. TROUBLESHOOTING
+================================================================
+
+"dotnet is not recognized"
+    -> Reopen terminal after SDK install, or use full path to dotnet.exe.
+
+"A network-related or instance-specific error occurred"
+    -> SQL Server (SQLEXPRESS) service is stopped. Start it in services.msc.
+    -> Wrong instance name. This project uses Server=.\SQLEXPRESS only.
+
+"Cannot open database EnterpriseAssetManagerDb"
+    -> Run: dotnet ef database update --project EnterpriseAssetManager
+
+"No project was found" (dotnet ef)
+    -> Run commands from "C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager"
+    -> Include: --project EnterpriseAssetManager
+
+"Build failed"
+    -> Run: dotnet build
+    -> Copy full error output for fixing.
+
+Port already in use
+    -> Edit EnterpriseAssetManager\Properties\launchSettings.json
+       and change ports 5080 / 7080.
+
+================================================================
+ 11. TESTS, COVERAGE, BENCHMARK
+================================================================
+
+    cd "C:\Users\s_var\OneDrive\Desktop\Personal projects\EnterpriseAssetManager"
+    dotnet test
+    dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+    dotnet run --project EnterpriseAssetManager.Benchmarks
+
+See COVERAGE_RESULTS.md and PERFORMANCE_RESULTS.md for measured numbers.
+
+New migration (indexes example):
+    dotnet ef migrations add AddPerformanceIndexes --project EnterpriseAssetManager
+    dotnet ef database update --project EnterpriseAssetManager
+
+================================================================
+ 12. CV / INTERVIEW EVIDENCE DOCS
+================================================================
+
+  CV_CLAIM_EVIDENCE.md   - resume claim -> code mapping + risk levels
+  PERFORMANCE_RESULTS.md - measured benchmark (auto-generated)
+  COVERAGE_RESULTS.md    - measured test coverage
+  GIT_EVIDENCE.md        - Git init / GitHub push steps
+  INTERVIEW_NOTES.md     - 30s / 1m / 2m pitches
+
+================================================================

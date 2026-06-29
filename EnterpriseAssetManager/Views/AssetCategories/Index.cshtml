@@ -1,0 +1,57 @@
+@model CategoryListViewModel
+@{
+    ViewData["Title"] = "Categories";
+    ViewData["Subtitle"] = "Asset categories";
+}
+
+<div class="page-actions">
+    <div></div>
+    <a class="btn btn-primary" asp-action="Create">+ New category</a>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="grid">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Categories.Any())
+                {
+                    <tr><td colspan="4" class="text-muted">No categories yet.</td></tr>
+                }
+                @foreach (var c in Model.Categories)
+                {
+                    <tr>
+                        <td><strong>@c.Name</strong></td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(c.Description) ? "—" : c.Description)</td>
+                        <td>
+                            @if (c.IsActive)
+                            {
+                                <span class="badge badge-available">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-retired">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-right nowrap">
+                            <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@c.Id">Edit</a>
+                            <form method="post" asp-action="SetActive" asp-route-id="@c.Id" asp-route-isActive="@(!c.IsActive)" style="display:inline;"
+                                  data-confirm="@(c.IsActive ? "Deactivate" : "Activate") category @c.Name?">
+                                <button type="submit" class="btn btn-sm @(c.IsActive ? "btn-danger" : "btn-success")">
+                                    @(c.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

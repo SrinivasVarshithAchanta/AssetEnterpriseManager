@@ -1,0 +1,83 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Subtitle"] = "Overview of assets and requests";
+}
+
+@if (Model.AssetStats != null)
+{
+    <div class="stat-grid">
+        <div class="stat"><div class="label">Total Assets</div><div class="value">@Model.AssetStats.Total</div></div>
+        <div class="stat success"><div class="label">Available</div><div class="value">@Model.AssetStats.Available</div></div>
+        <div class="stat"><div class="label">Assigned</div><div class="value">@Model.AssetStats.Assigned</div></div>
+        <div class="stat accent"><div class="label">Under Maintenance</div><div class="value">@Model.AssetStats.UnderMaintenance</div></div>
+        <div class="stat grey"><div class="label">Retired</div><div class="value">@Model.AssetStats.Retired</div></div>
+    </div>
+}
+
+<div class="stat-grid">
+    @if (Model.Role == Roles.Employee)
+    {
+        <div class="stat"><div class="label">My Requests</div><div class="value">@Model.RequestStats.Total</div></div>
+    }
+    else
+    {
+        <div class="stat"><div class="label">Total Requests</div><div class="value">@Model.RequestStats.Total</div></div>
+    }
+    <div class="stat accent"><div class="label">Pending</div><div class="value">@Model.RequestStats.Pending</div></div>
+    <div class="stat success"><div class="label">Approved</div><div class="value">@Model.RequestStats.Approved</div></div>
+    <div class="stat danger"><div class="label">Rejected</div><div class="value">@Model.RequestStats.Rejected</div></div>
+    <div class="stat"><div class="label">Fulfilled</div><div class="value">@Model.RequestStats.Fulfilled</div></div>
+</div>
+
+@if (Model.Role == Roles.Employee)
+{
+    <div class="card">
+        <div class="card-head"><h2>Quick actions</h2></div>
+        <div class="card-body">
+            <p class="text-muted" style="margin-top:0;">Need a laptop, monitor, or accessory? Raise a request and track its status here.</p>
+            <div class="btn-row">
+                <a class="btn btn-primary" asp-controller="Requests" asp-action="Create">New asset request</a>
+                <a class="btn btn-secondary" asp-controller="Requests" asp-action="Index">View my requests</a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-head">
+            <h2>Recent activity</h2>
+            <a class="btn btn-sm btn-secondary" asp-controller="Approvals" asp-action="Index">Open approvals</a>
+        </div>
+        <div class="table-wrap">
+            <table class="grid">
+                <thead>
+                    <tr>
+                        <th>Request</th>
+                        <th>Requested By</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th class="nowrap">Reviewed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.RecentRequests.Any())
+                    {
+                        <tr><td colspan="5" class="text-muted">No reviewed requests yet.</td></tr>
+                    }
+                    @foreach (var r in Model.RecentRequests)
+                    {
+                        <tr>
+                            <td><a asp-controller="Approvals" asp-action="Details" asp-route-id="@r.Id">@r.RequestNumber</a></td>
+                            <td>@(r.RequestedByUser?.FullName ?? "—")</td>
+                            <td>@(r.AssetCategory?.Name ?? "—")</td>
+                            <td><span class="@DisplayHelpers.BadgeClass(r.Status)">@r.Status</span></td>
+                            <td class="nowrap text-muted">@(r.ReviewedAt?.ToString("dd MMM yyyy") ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

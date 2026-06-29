@@ -1,0 +1,87 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string Active(params string[] names) =>
+        names.Any(n => string.Equals(controller, n, StringComparison.OrdinalIgnoreCase)) ? "active" : "";
+    var role = User.GetRole();
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle - AssetOps</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            AssetOps
+            <small>Asset Operations</small>
+        </div>
+        <nav>
+            <a class="@Active("Dashboard")" asp-controller="Dashboard" asp-action="Index"><span class="ico">▦</span> Dashboard</a>
+
+            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Manager))
+            {
+                <a class="@Active("Assets")" asp-controller="Assets" asp-action="Index"><span class="ico">▪</span> Assets</a>
+            }
+
+            <a class="@Active("Requests")" asp-controller="Requests" asp-action="Index"><span class="ico">✎</span> My Requests</a>
+
+            @if (User.IsInRole(Roles.Manager) || User.IsInRole(Roles.Admin))
+            {
+                <a class="@Active("Approvals")" asp-controller="Approvals" asp-action="Index"><span class="ico">✔</span> Approvals</a>
+            }
+
+            @if (User.IsInRole(Roles.Admin))
+            {
+                <div class="nav-section">Administration</div>
+                <a class="@Active("AssetCategories")" asp-controller="AssetCategories" asp-action="Index"><span class="ico">▤</span> Categories</a>
+                <a class="@Active("Users")" asp-controller="Users" asp-action="Index"><span class="ico">◍</span> Users</a>
+                <a class="@Active("AuditLogs")" asp-controller="AuditLogs" asp-action="Index"><span class="ico">≡</span> Audit Logs</a>
+            }
+        </nav>
+
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="logout-btn">⏻ Logout</button>
+        </form>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <h1 class="page-title">@pageTitle</h1>
+                @if (ViewData["Subtitle"] != null)
+                {
+                    <div class="page-sub">@ViewData["Subtitle"]</div>
+                }
+            </div>
+            <div class="user-box">
+                <div class="user-meta">
+                    <div class="user-name">@User.GetDisplayName()</div>
+                </div>
+                <span class="badge badge-role">@role</span>
+            </div>
+        </header>
+
+        <main class="content">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-error">@TempData["Error"]</div>
+            }
+
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

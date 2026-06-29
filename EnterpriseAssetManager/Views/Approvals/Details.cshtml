@@ -1,0 +1,77 @@
+@model RequestApprovalViewModel
+@{
+    ViewData["Title"] = "Review request";
+    ViewData["Subtitle"] = Model.Request.RequestNumber;
+    var req = Model.Request;
+    var isAdmin = User.IsInRole(Roles.Admin);
+}
+
+<div class="page-actions">
+    <a class="btn btn-secondary" asp-action="Index">‹ Back to approvals</a>
+    @if (isAdmin && req.Status == RequestStatus.Approved)
+    {
+        <a class="btn btn-success" asp-action="Fulfill" asp-route-id="@req.Id">Fulfill request</a>
+    }
+</div>
+
+<div class="card">
+    <div class="card-head">
+        <h2>@req.RequestNumber</h2>
+        <span class="@DisplayHelpers.BadgeClass(req.Status)">@req.Status</span>
+    </div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div class="item"><div class="k">Requested By</div><div class="v">@(req.RequestedByUser?.FullName ?? "—")</div></div>
+            <div class="item"><div class="k">Category</div><div class="v">@(req.AssetCategory?.Name ?? "—")</div></div>
+            <div class="item"><div class="k">Priority</div><div class="v">@req.Priority</div></div>
+            <div class="item"><div class="k">Requested On</div><div class="v">@req.RequestedAt.ToString("dd MMM yyyy")</div></div>
+            <div class="item"><div class="k">Assigned Asset</div><div class="v">@(req.Asset?.AssetTag ?? "—")</div></div>
+        </div>
+
+        <div style="margin-top:18px;">
+            <div class="k" style="font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);">Business Reason</div>
+            <p style="margin-top:4px;">@req.BusinessReason</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(req.ManagerComments))
+        {
+            <div style="margin-top:12px;">
+                <div class="k" style="font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);">Manager Comments</div>
+                <p style="margin-top:4px;">@req.ManagerComments</p>
+            </div>
+        }
+    </div>
+</div>
+
+@if (req.Status == RequestStatus.Pending)
+{
+    <div class="card">
+        <div class="card-head"><h2>Decision</h2></div>
+        <div class="card-body">
+            <div class="form-row form" style="max-width:640px;">
+                <label for="comments">Manager comments</label>
+                <textarea id="comments" name="commentsShared" class="form-control" form="approveForm"
+                          placeholder="Optional when approving. Required when rejecting."></textarea>
+                <div class="help">Comments are mandatory when rejecting a request.</div>
+            </div>
+
+            <div class="btn-row">
+                <form id="approveForm" method="post" asp-action="Approve" asp-route-id="@req.Id">
+                    <input type="hidden" name="comments" id="approveComments" />
+                    <button type="submit" class="btn btn-success"
+                            onclick="document.getElementById('approveComments').value=document.getElementById('comments').value;">
+                        Approve
+                    </button>
+                </form>
+
+                <form method="post" asp-action="Reject" asp-route-id="@req.Id">
+                    <input type="hidden" name="comments" id="rejectComments" />
+                    <button type="submit" class="btn btn-danger"
+                            onclick="document.getElementById('rejectComments').value=document.getElementById('comments').value;">
+                        Reject
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}

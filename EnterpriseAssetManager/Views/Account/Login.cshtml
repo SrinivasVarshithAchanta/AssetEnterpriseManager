@@ -1,0 +1,58 @@
+@model LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in - AssetOps</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="tag">Asset Operations</div>
+            <h1>AssetOps</h1>
+            <p>
+                Internal portal for requesting company assets, approving requests,
+                and tracking the full equipment lifecycle across the organization.
+            </p>
+        </div>
+        <div class="login-form">
+            <h2>Sign in</h2>
+            <div class="sub">Use your organization account to continue.</div>
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+                <div class="form-row">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" class="form-control" autocomplete="username" placeholder="you@assetops.com" />
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-row">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" class="form-control" autocomplete="current-password" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;">Sign in</button>
+            </form>
+
+            <div class="demo-box">
+                <strong>Demo accounts</strong>
+                <div class="row"><span>Admin</span><code>admin@assetops.com / Admin@123</code></div>
+                <div class="row"><span>Manager</span><code>manager@assetops.com / Manager@123</code></div>
+                <div class="row"><span>Employee</span><code>employee@assetops.com / Employee@123</code></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

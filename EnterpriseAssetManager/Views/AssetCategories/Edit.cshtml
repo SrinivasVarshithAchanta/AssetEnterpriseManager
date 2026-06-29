@@ -1,0 +1,38 @@
+@model CategoryFormViewModel
+@{
+    ViewData["Title"] = "Edit category";
+    ViewData["Subtitle"] = Model.Name;
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="Edit" class="form">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+            <div class="form-row">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="checkbox-row">
+                    <input asp-for="IsActive" type="checkbox" />
+                    <label asp-for="IsActive" style="margin:0;"></label>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

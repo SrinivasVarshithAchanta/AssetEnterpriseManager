@@ -1,0 +1,52 @@
+@model FulfillRequestViewModel
+@{
+    ViewData["Title"] = "Fulfill request";
+    ViewData["Subtitle"] = Model.Request.RequestNumber;
+}
+
+<div class="page-actions">
+    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.RequestId">‹ Back to request</a>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>Assign an asset</h2></div>
+    <div class="card-body">
+        <div class="detail-grid" style="margin-bottom:18px;">
+            <div class="item"><div class="k">Request</div><div class="v">@Model.Request.RequestNumber</div></div>
+            <div class="item"><div class="k">Requested By</div><div class="v">@(Model.Request.RequestedByUser?.FullName ?? "—")</div></div>
+            <div class="item"><div class="k">Category</div><div class="v">@(Model.Request.AssetCategory?.Name ?? "—")</div></div>
+        </div>
+
+        @if (!Model.AvailableAssets.Any())
+        {
+            <div class="alert alert-error">
+                No available assets in this category right now. Add or free up an asset, then try again.
+            </div>
+            <a class="btn btn-secondary" asp-controller="Assets" asp-action="Create">Add asset</a>
+        }
+        else
+        {
+            <form method="post" asp-action="Fulfill" class="form">
+                <input type="hidden" asp-for="RequestId" />
+                <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+                <div class="form-row">
+                    <label asp-for="AssetId">Available asset</label>
+                    <select asp-for="AssetId" class="form-control">
+                        <option value="">Select an asset</option>
+                        @foreach (var a in Model.AvailableAssets)
+                        {
+                            <option value="@a.Id">@a.AssetTag — @a.Name (@a.Condition)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="AssetId" class="field-validation-error"></span>
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-success">Assign and fulfill</button>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.RequestId">Cancel</a>
+                </div>
+            </form>
+        }
+    </div>
+</div>

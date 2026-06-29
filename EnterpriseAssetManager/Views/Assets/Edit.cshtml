@@ -1,0 +1,61 @@
+@model AssetEditViewModel
+@{
+    ViewData["Title"] = "Edit asset";
+    ViewData["Subtitle"] = Model.AssetTag;
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="Edit" class="form">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+            <div class="form-row">
+                <label asp-for="AssetTag"></label>
+                <input asp-for="AssetTag" class="form-control" />
+                <span asp-validation-for="AssetTag" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="CategoryId"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                    <option value="">Select a category</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="SerialNumber"></label>
+                <input asp-for="SerialNumber" class="form-control" />
+                <span asp-validation-for="SerialNumber" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<AssetStatus>()"></select>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="Condition"></label>
+                <select asp-for="Condition" class="form-control" asp-items="Html.GetEnumSelectList<AssetCondition>()"></select>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="PurchaseDate"></label>
+                <input asp-for="PurchaseDate" type="date" class="form-control" />
+                <span asp-validation-for="PurchaseDate" class="field-validation-error"></span>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

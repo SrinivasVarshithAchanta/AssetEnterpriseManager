@@ -1,0 +1,47 @@
+@model AssetRequest
+@{
+    ViewData["Title"] = "Request details";
+    ViewData["Subtitle"] = Model.RequestNumber;
+    var isOwner = Model.RequestedByUserId == User.GetUserId();
+}
+
+<div class="page-actions">
+    <a class="btn btn-secondary" asp-action="Index">‹ Back to my requests</a>
+    @if (isOwner && Model.Status == RequestStatus.Pending)
+    {
+        <form method="post" asp-action="Cancel" asp-route-id="@Model.Id" data-confirm="Cancel request @Model.RequestNumber?">
+            <button type="submit" class="btn btn-danger">Cancel request</button>
+        </form>
+    }
+</div>
+
+<div class="card">
+    <div class="card-head">
+        <h2>@Model.RequestNumber</h2>
+        <span class="@DisplayHelpers.BadgeClass(Model.Status)">@Model.Status</span>
+    </div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div class="item"><div class="k">Category</div><div class="v">@(Model.AssetCategory?.Name ?? "—")</div></div>
+            <div class="item"><div class="k">Priority</div><div class="v">@Model.Priority</div></div>
+            <div class="item"><div class="k">Requested By</div><div class="v">@(Model.RequestedByUser?.FullName ?? "—")</div></div>
+            <div class="item"><div class="k">Requested On</div><div class="v">@Model.RequestedAt.ToString("dd MMM yyyy")</div></div>
+            <div class="item"><div class="k">Reviewed By</div><div class="v">@(Model.ReviewedByUser?.FullName ?? "—")</div></div>
+            <div class="item"><div class="k">Reviewed On</div><div class="v">@(Model.ReviewedAt?.ToString("dd MMM yyyy") ?? "—")</div></div>
+            <div class="item"><div class="k">Assigned Asset</div><div class="v">@(Model.Asset?.AssetTag ?? "—")</div></div>
+        </div>
+
+        <div style="margin-top:18px;">
+            <div class="k" style="font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);">Business Reason</div>
+            <p style="margin-top:4px;">@Model.BusinessReason</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ManagerComments))
+        {
+            <div style="margin-top:12px;">
+                <div class="k" style="font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);">Manager Comments</div>
+                <p style="margin-top:4px;">@Model.ManagerComments</p>
+            </div>
+        }
+    </div>
+</div>

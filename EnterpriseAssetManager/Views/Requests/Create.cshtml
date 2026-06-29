@@ -1,0 +1,40 @@
+@model AssetRequestCreateViewModel
+@{
+    ViewData["Title"] = "New request";
+    ViewData["Subtitle"] = "Request a company asset";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="Create" class="form">
+            <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+            <div class="form-row">
+                <label asp-for="AssetCategoryId"></label>
+                <select asp-for="AssetCategoryId" id="categorySelect" class="form-control" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                    <option value="">Select a category</option>
+                </select>
+                <div class="help" id="availabilityHint"></div>
+                <span asp-validation-for="AssetCategoryId" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="Priority"></label>
+                <select asp-for="Priority" class="form-control" asp-items="Html.GetEnumSelectList<RequestPriority>()"></select>
+                <span asp-validation-for="Priority" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-row">
+                <label asp-for="BusinessReason"></label>
+                <textarea asp-for="BusinessReason" class="form-control" placeholder="Explain why you need this asset (minimum 10 characters)."></textarea>
+                <div class="help">Be specific so your manager can review quickly.</div>
+                <span asp-validation-for="BusinessReason" class="field-validation-error"></span>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Submit request</button>
+                <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
